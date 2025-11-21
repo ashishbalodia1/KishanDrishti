@@ -2,6 +2,7 @@
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
+import AuthProvider from "@/components/auth/auth-provider"
 import FloatingChatbot from "@/components/floating-chatbot"
 import "./globals.css"
 
@@ -23,10 +24,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="font-sans antialiased">
         <div className="min-h-screen bg-background text-foreground">
-          <ThemeProvider>
-            {children}
-            <FloatingChatbot />
-          </ThemeProvider>
+          <AuthProvider>
+            <ThemeProvider>
+              {children}
+              <FloatingChatbot />
+            </ThemeProvider>
+          </AuthProvider>
         </div>
         <Analytics />
       </body>

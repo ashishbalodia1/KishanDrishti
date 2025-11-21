@@ -1,13 +1,24 @@
 "use client"
 
 import React from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 
 type Props = {
-  onSelect: (role: "user" | "admin" | "developer") => void
+  onSelectUser: () => void
 }
 
-export default function EntryModal({ onSelect }: Props) {
+export default function EntryModal({ onSelectUser }: Props) {
+  const router = useRouter()
+
+  const handleSelect = (role: "user" | "admin" | "developer") => {
+    if (role === "user") {
+      onSelectUser()
+    } else {
+      router.push(`/auth?role=${role}`)
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-sm">
       <div className="bg-card border border-border rounded-lg p-8 w-[92%] max-w-3xl text-center shadow-lg">
@@ -24,7 +35,7 @@ export default function EntryModal({ onSelect }: Props) {
             </p>
             <Button 
               className="mt-auto w-full" 
-              onClick={() => onSelect("user")}
+              onClick={() => handleSelect("user")}
             >
               Enter as User
             </Button>
@@ -40,7 +51,7 @@ export default function EntryModal({ onSelect }: Props) {
             <Button 
               variant="secondary" 
               className="mt-auto w-full" 
-              onClick={() => onSelect("admin")}
+              onClick={() => handleSelect("admin")}
             >
               Enter as Admin
             </Button>
@@ -56,7 +67,7 @@ export default function EntryModal({ onSelect }: Props) {
             <Button 
               variant="outline" 
               className="mt-auto w-full" 
-              onClick={() => onSelect("developer")}
+              onClick={() => handleSelect("developer")}
             >
               Enter as Developer
             </Button>
