@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server"
 import { hash } from "bcryptjs"
-import { prisma } from "@/lib/prisma"
+import { PrismaClient } from "@prisma/client"
 
 export async function POST(req: Request) {
+  const prisma = new PrismaClient()
+  
   try {
     const { email, password, name, role } = await req.json()
 
     // Validate input
     if (!email || !password || !role) {
+      await prisma.$disconnect()
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -20,6 +23,7 @@ export async function POST(req: Request) {
     })
 
     if (existingUser) {
+      await prisma.$disconnect()
       return NextResponse.json(
         { error: "User already exists" },
         { status: 400 }
@@ -39,6 +43,8 @@ export async function POST(req: Request) {
       },
     })
 
+    await prisma.$disconnect()
+
     return NextResponse.json(
       {
         user: {
@@ -52,6 +58,7 @@ export async function POST(req: Request) {
     )
   } catch (error) {
     console.error("Signup error:", error)
+    await prisma.$disconnect()
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
