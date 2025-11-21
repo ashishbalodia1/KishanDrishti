@@ -1,27 +1,33 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
 export default function DeveloperPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    if (status === "loading") return
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted || status === "loading") return
 
     if (!session) {
       router.push("/auth?role=developer")
       return
     }
 
-    if (session.user.role !== "developer") {
+    const userRole = (session.user as any)?.role
+    if (userRole && userRole !== "developer") {
       router.push("/")
     }
-  }, [session, status, router])
+  }, [session, status, router, mounted])
 
-  if (status === "loading") {
+  if (!mounted || status === "loading") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -32,7 +38,7 @@ export default function DeveloperPage() {
     )
   }
 
-  if (!session || session.user.role !== "developer") {
+  if (!session) {
     return null
   }
 
