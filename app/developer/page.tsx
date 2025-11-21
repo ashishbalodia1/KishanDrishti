@@ -158,3 +158,5 @@ export default function DeveloperPage() {
     </div>
   )
 }
+
+export const dynamic = 'force-dynamic'

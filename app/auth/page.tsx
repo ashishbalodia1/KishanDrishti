@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import LoginForm from "@/components/auth/login-form"
 import SignupForm from "@/components/auth/signup-form"
 
-export default function AuthPage() {
+function AuthContent() {
   const searchParams = useSearchParams()
   const role = (searchParams.get("role") as "user" | "admin" | "developer") || "user"
   const [authMode, setAuthMode] = useState<"login" | "signup">("login")
@@ -31,3 +31,17 @@ export default function AuthPage() {
     </div>
   )
 }
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    }>
+      <AuthContent />
+    </Suspense>
+  )
+}
+
+export const dynamic = 'force-dynamic'

@@ -1,0 +1,6 @@
+{
+  "env": {
+    "NEXTAUTH_URL": "https://kishan-drishti.vercel.app"
+  },
+  "buildCommand": "prisma generate && next build"
+}
