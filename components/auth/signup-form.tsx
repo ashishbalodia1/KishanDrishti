@@ -37,6 +37,11 @@ export default function SignupForm({ role, onSwitchToLogin }: Props) {
     e.preventDefault()
     setError("")
 
+    if (!name.trim()) {
+      setError("Please enter your name")
+      return
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match")
       return
@@ -88,8 +93,13 @@ export default function SignupForm({ role, onSwitchToLogin }: Props) {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 bg-card border border-border rounded-lg">
+    <div className="w-full max-w-md mx-auto p-8 bg-card border border-border rounded-lg shadow-lg">
       <div className="text-center mb-6">
+        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span className="text-3xl">
+            {role === "user" ? "🌾" : role === "admin" ? "🏛️" : "🛠️"}
+          </span>
+        </div>
         <h2 className="text-2xl font-bold">Sign up as {getRoleLabel()}</h2>
         <p className="text-sm text-muted-foreground mt-2">
           Create your account to get started
