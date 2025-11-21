@@ -1,7 +1,31 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { compare } from "bcryptjs"
-import { PrismaClient } from "@prisma/client"
+
+// Simple in-memory user store (will be replaced with real database later)
+const users = new Map<string, { id: string; email: string; name: string; password: string; role: string }>()
+
+// Demo users
+users.set("farmer@demo.com", { 
+  id: "1", 
+  email: "farmer@demo.com", 
+  name: "Demo Farmer", 
+  password: "demo123", 
+  role: "user" 
+})
+users.set("admin@demo.com", { 
+  id: "2", 
+  email: "admin@demo.com", 
+  name: "Demo Admin", 
+  password: "admin123", 
+  role: "admin" 
+})
+users.set("dev@demo.com", { 
+  id: "3", 
+  email: "dev@demo.com", 
+  name: "Demo Developer", 
+  password: "dev123", 
+  role: "developer" 
+})
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -22,36 +46,17 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        try {
-          const prisma = new PrismaClient()
-          
-          const user = await prisma.user.findUnique({
-            where: {
-              email: credentials.email,
-            },
-          })
+        const user = users.get(credentials.email)
 
-          await prisma.$disconnect()
-
-          if (!user) {
-            return null
-          }
-
-          const isPasswordValid = await compare(credentials.password, user.password)
-
-          if (!isPasswordValid) {
-            return null
-          }
-
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-          }
-        } catch (error) {
-          console.error("Auth error:", error)
+        if (!user || user.password !== credentials.password) {
           return null
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
         }
       },
     }),
@@ -72,4 +77,15 @@ export const authOptions: NextAuthOptions = {
       return session
     },
   },
+}
+
+// Helper function to add users (for signup)
+export function addUser(email: string, password: string, name: string, role: string) {
+  if (users.has(email)) {
+    return { success: false, error: "User already exists" }
+  }
+  
+  const id = Date.now().toString()
+  users.set(email, { id, email, name, password, role })
+  return { success: true, user: { id, email, name, role } }
 }
