@@ -1,37 +1,21 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useSession, signOut } from "next-auth/react"
+import { Button } from "@/components/ui/button"
 
 export default function DeveloperPage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [mounted, setMounted] = useState(false)
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      window.location.href = "/auth?role=developer"
+    },
+  })
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  useEffect(() => {
-    if (!mounted || status === "loading") return
-
-    if (!session) {
-      router.push("/auth?role=developer")
-      return
-    }
-
-    const userRole = (session.user as any)?.role
-    if (userRole && userRole !== "developer") {
-      router.push("/")
-    }
-  }, [session, status, router, mounted])
-
-  if (!mounted || status === "loading") {
+  if (status === "loading") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="text-4xl mb-4">⏳</div>
+          <div className="text-4xl mb-4 animate-pulse">⏳</div>
           <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
@@ -50,8 +34,17 @@ export default function DeveloperPage() {
             <h1 className="text-2xl font-bold">Developer Portal</h1>
             <p className="text-sm text-muted-foreground">API Documentation & Future Goals</p>
           </div>
-          <div className="text-sm text-muted-foreground">
-            Welcome, {session.user.name || session.user.email}
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground">
+              Welcome, {session.user?.name || session.user?.email}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => signOut({ callbackUrl: "/" })}
+            >
+              Logout
+            </Button>
           </div>
         </div>
       </div>
@@ -164,5 +157,3 @@ export default function DeveloperPage() {
     </div>
   )
 }
-
-export const dynamic = 'force-dynamic'
